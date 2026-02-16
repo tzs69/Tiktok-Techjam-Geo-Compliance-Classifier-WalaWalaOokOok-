@@ -31,10 +31,10 @@ Retriever runs hybrid query (dense + sparse fusion) with optional domain filteri
 
 ## Online Workflow Nodes
 
-1. `query_enhance_route`
+1. `query_enhancer`
 2. `retrieve`
-3. `rerank`
-4. `classify`
+3. `classifier`
+4. `hitl_router`
 5. `finalize`
 
 ## Input and Output

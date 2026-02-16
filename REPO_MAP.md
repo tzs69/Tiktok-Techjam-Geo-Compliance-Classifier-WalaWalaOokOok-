@@ -46,10 +46,10 @@
   - Query clarification + domain/law/region hints
   - Optional LLM fallback
 - `retrieve.py`
-  - Retrieves evidence from offline Qdrant retriever
-- `rerank.py`
-  - Deterministic reranking and deduplication
+  - Retrieves evidence from offline Qdrant retriever (hybrid retrieval + late-interaction reranking)
 - `classify.py`
-  - LLM-backed classification with deterministic fallback and HITL flags
+  - LLM-backed classification with deterministic confidence fallback
+- `hitl_router.py`
+  - Deterministic-first HITL escalation router
 - `finalize.py`
   - Final output formatting

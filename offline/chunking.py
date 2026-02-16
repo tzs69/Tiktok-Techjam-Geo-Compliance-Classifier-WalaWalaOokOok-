@@ -19,7 +19,7 @@ class ChildChunk:
     parent_text: str
     child_text: str
 
-
+# iterate through root and select only .txt files
 def iter_source_files(data_root: Path) -> Iterable[Path]:
     for path in sorted(data_root.rglob("*")):
         if not path.is_file():
@@ -29,7 +29,7 @@ def iter_source_files(data_root: Path) -> Iterable[Path]:
         if path.suffix.lower() in {".txt", ""}:
             yield path
 
-
+# seperate title and body by custom delimiter; else first line is title and rest is body; else title is filename and body is empty
 def parse_source(path: Path) -> tuple[str, str]:
     raw = path.read_text(encoding="utf-8")
     if "/()/()/" in raw:
@@ -43,13 +43,13 @@ def parse_source(path: Path) -> tuple[str, str]:
     body = "\n".join(lines[1:]).strip()
     return title, body
 
-
+# standardise newlines 
 def _clean_text(text: str) -> str:
     normalized = re.sub(r"\r\n?", "\n", text)
     normalized = re.sub(r"\n{3,}", "\n\n", normalized)
     return normalized.strip()
 
-
+# split text into parent chunks based on markdown headers
 def _markdown_parent_chunks(text: str) -> list[str]:
     splitter = MarkdownHeaderTextSplitter(
         headers_to_split_on=[("#", "h1"), ("##", "h2"), ("###", "h3"), ("####", "h4")],
@@ -59,7 +59,8 @@ def _markdown_parent_chunks(text: str) -> list[str]:
     chunks = [doc.page_content.strip() for doc in docs if doc.page_content and doc.page_content.strip()]
     return chunks
 
-
+# fallback chunking method using recursive character splitting
+# [NOTE] this probably could be used as main chunking method unless we can produce md / hierachical chunking is a lot better 
 def _fallback_parent_chunks(text: str, chunk_size: int, chunk_overlap: int) -> list[str]:
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
@@ -91,6 +92,7 @@ def build_parent_child_chunks(
     elif not parent_chunks:
         parent_chunks = _fallback_parent_chunks(cleaned, parent_chunk_size, parent_chunk_overlap)
 
+    # split the child chunks 
     child_splitter = RecursiveCharacterTextSplitter(
         chunk_size=child_chunk_size,
         chunk_overlap=child_chunk_overlap,
@@ -100,6 +102,7 @@ def build_parent_child_chunks(
     records: list[ChildChunk] = []
     seen_child_text: set[str] = set()
 
+    # create child chunk for each parent chunk; also create a "snippet" of the parent text to be used as context for the child chunk 
     for parent_index, parent_text in enumerate(parent_chunks):
         if not parent_text.strip():
             continue

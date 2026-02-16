@@ -14,11 +14,13 @@ class WorkflowState(TypedDict, total=False):
     routing_confidence: float
 
     retrieved_evidence: List[Dict[str, Any]]
-    reranked_evidence: List[Dict[str, Any]]
 
     needs_geo_compliance: bool
     reasoning: str
     citations: List[str]
+    deterministic_confidence: float
+    llm_confidence: float
+    classification_conflict: bool
     classification_confidence: float
     needs_hitl: bool
     hitl_reason: str
